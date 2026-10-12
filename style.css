@@ -1,0 +1,382 @@
+/* =========================================================
+   MIST — matched to the Figma frame (1440×900), measured 1:1.
+   Inter throughout: titles 70/150px, labels 24/34px Regular,
+   pill text 16px Semibold. Glass panels are drawn by the
+   water shader (no CSS backdrop-filter); CSS adds the rim.
+   ========================================================= */
+
+:root {
+  --ink: #ffffff;
+  --track: rgba(255, 255, 255, 0.28);
+  --rim: rgba(255, 255, 255, 0.2);
+  --pill: #d6ebf2;
+  --pill-hover: #e4f2f6;
+  --pill-ink: #fe8684;
+  --coral: #fe8684;
+  --ice: #83cae2;
+  --font: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+
+:root[data-mode='night'] {
+  --rim: rgba(214, 235, 242, 0.16);
+  --pill: #c3dbe6;
+  --pill-hover: #d6ebf2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #1b2420;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+button,
+input,
+output {
+  font: inherit;
+  color: inherit;
+}
+
+.layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+#pond {
+  z-index: 0;
+  background: #1b2420;
+}
+#air {
+  z-index: 1;
+  pointer-events: none;
+}
+#fog {
+  z-index: 10;
+  pointer-events: none;
+}
+
+#stage {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 1440px;
+  height: 900px;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------
+   Panels — positions and sizes from the Figma frame
+   --------------------------------------------------------- */
+
+.panel {
+  position: absolute;
+  pointer-events: auto;
+  border-radius: 40px;
+  border: 1px solid var(--rim);
+  background: transparent;
+  transition: border-color 0.6s;
+}
+
+.panel--side {
+  top: 123px;
+  width: 400px;
+  height: 662px;
+}
+#water {
+  left: 73px;
+}
+#bell {
+  left: 993px;
+}
+
+.panel--mist {
+  left: 498px;
+  top: 123px;
+  width: 470px;
+  height: 497px;
+}
+
+.panel--tempo {
+  left: 492px;
+  top: 646px;
+  width: 468px;
+  height: 131px;
+}
+
+.panel.is-on {
+  border-color: rgba(214, 235, 242, 0.5);
+}
+
+/* everything inside is placed absolutely, to the pixel */
+.panel > * {
+  position: absolute;
+}
+
+/* ---------------------------------------------------------
+   Titles
+   --------------------------------------------------------- */
+
+h2 {
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.panel--side h2 {
+  top: 24.5px;
+  font-size: 70px;
+  line-height: 70px;
+}
+
+.panel--mist h2 {
+  top: 38.5px;
+  transform: translateX(-6px);
+  font-size: 150px;
+  line-height: 150px;
+}
+
+#bell h2.is-ringing {
+  animation: strike 2.4s ease-out;
+}
+
+@keyframes strike {
+  12% {
+    color: #ffe3e2;
+    text-shadow: 0 0 26px rgba(254, 134, 132, 0.85), 0 0 60px rgba(254, 134, 132, 0.45);
+  }
+}
+
+/* ---------------------------------------------------------
+   Pills
+   --------------------------------------------------------- */
+
+.pills,
+.presets {
+  display: grid;
+}
+
+.panel--side .pills {
+  top: 114px;
+  left: 56px;
+  grid-template-columns: 135px 135px;
+  column-gap: 15px;
+}
+
+.panel--mist .pills {
+  top: 214px;
+  left: 80px;
+  grid-template-columns: 153px 136px;
+  column-gap: 16px;
+}
+
+.presets {
+  top: 518px;
+  left: 56px;
+  grid-template-columns: 135px 135px;
+  gap: 16px 15px;
+}
+
+.pill,
+.chip {
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--pill);
+  color: var(--pill-ink);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.45px;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, transform 0.12s, box-shadow 0.3s;
+}
+
+.panel--mist .pill {
+  height: 47px;
+}
+
+.pill:hover,
+.chip:hover {
+  background: var(--pill-hover);
+}
+
+.pill:active,
+.chip:active {
+  transform: scale(0.97);
+}
+
+/* playing / selected */
+.panel.is-on .pill--start,
+.chip.is-active {
+  background: var(--coral);
+  color: #ffffff;
+}
+
+/* ---------------------------------------------------------
+   Sliders — label above a solid white bar
+   --------------------------------------------------------- */
+
+.sliders {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+}
+
+.row input {
+  grid-column: 1 / -1;
+}
+
+/* the value sits quietly at the right end of the label line */
+.row output {
+  font-size: 16px;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.panel--mist .row output,
+.panel--tempo .row output {
+  font-size: 18px;
+  line-height: 18px;
+}
+
+.row label {
+  font-weight: 400;
+}
+
+/* side panels: 24px labels, 284×10 bar, 20px knob, 64px pitch */
+.panel--side .sliders {
+  top: 187.3px;
+  left: 56px;
+  width: 284px;
+  gap: 13.8px;
+}
+
+.panel--side .row {
+  row-gap: 6.2px;
+}
+
+.panel--side .row label {
+  font-size: 24px;
+  line-height: 24px;
+}
+
+/* mist + tempo: 34px labels, 300×13 bar, 23px knob */
+.panel--mist .sliders {
+  top: 290.6px;
+  left: 80px;
+  width: 300px;
+  gap: 15.6px;
+}
+
+.panel--mist .row,
+.panel--tempo .row {
+  row-gap: 6.4px;
+}
+
+.panel--mist .row label,
+.panel--tempo .row label {
+  font-size: 34px;
+  line-height: 34px;
+}
+
+.panel--tempo .row {
+  top: 27.65px;
+  left: 83px;
+  width: 300px;
+  row-gap: 12.4px;
+}
+
+input[type='range'] {
+  --a: 0%;
+  --b: 50%;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 20px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.panel--mist input[type='range'],
+.panel--tempo input[type='range'] {
+  height: 23px;
+}
+
+/* the earlier bars: white up to the knob, translucent after it */
+input[type='range']::-webkit-slider-runnable-track {
+  height: 9px;
+  border-radius: 9px;
+  background: linear-gradient(90deg, var(--track) 0 var(--a), #fff var(--a) var(--b), var(--track) var(--b) 100%);
+}
+input[type='range']::-moz-range-track {
+  height: 9px;
+  border-radius: 9px;
+  background: linear-gradient(90deg, var(--track) 0 var(--a), #fff var(--a) var(--b), var(--track) var(--b) 100%);
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -6.5px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 0 rgba(254, 134, 132, 0), 0 2px 6px rgba(0, 0, 0, 0.35);
+  transition: box-shadow 0.25s, transform 0.15s;
+}
+input[type='range']::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+input[type='range']:hover::-webkit-slider-thumb {
+  box-shadow: 0 0 0 6px rgba(254, 134, 132, 0.35), 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+input[type='range']:active::-webkit-slider-thumb {
+  transform: scale(1.15);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--ice);
+  outline-offset: 3px;
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #bell h2.is-ringing {
+    animation: none;
+  }
+}
