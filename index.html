@@ -14,6 +14,9 @@
 
   <body>
     <div id="room">
+      <div id="stage">
+      <!-- the room carries on past the edges of the render, softly -->
+      <img id="ext" src="img/room-ext.jpg" alt="" />
       <img class="plate" id="plate-full" src="img/room.jpg" alt="" />
       <img class="plate" id="plate-empty" src="img/room-empty.jpg" alt="" />
 
@@ -63,6 +66,8 @@
       <canvas id="steam"></canvas>
 
       <button id="pickup" aria-label="remote"></button>
+      </div>
+
       <div id="backdrop"></div>
 
       <div id="remote">

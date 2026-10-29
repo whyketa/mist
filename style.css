@@ -39,15 +39,42 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* the window is the room; the render sits inside it at a size that
+   never goes past its own pixels, and the room carries on around it */
 #room {
   position: fixed;
-  left: 50%;
-  top: 50%;
+  inset: 0;
+  overflow: hidden;
+  background: #3a3c46;
+}
+
+#stage {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 1536px;
   height: 1024px;
-  margin: -512px 0 0 -768px;
-  transform-origin: 50% 50%;
-  overflow: hidden;
+  transform-origin: 0 0;
+}
+
+#ext {
+  position: absolute;
+  left: -1536px;
+  top: -768px;
+  width: 4608px;
+  height: 2560px;
+  pointer-events: none;
+}
+
+/* the render melts into the continuation at its edges */
+.plate,
+#light {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 7%, #000 93%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 7%, #000 93%, transparent 100%);
+  mask-composite: intersect;
 }
 
 .plate,
@@ -115,6 +142,10 @@ button {
 }
 
 #night {
+  left: -1536px !important;
+  top: -768px !important;
+  width: 4608px !important;
+  height: 2560px !important;
   background: rgba(4, 6, 16, 0.62);
   opacity: var(--night);
   transition: opacity 1.8s ease;
@@ -198,12 +229,12 @@ button {
 
 #remote {
   position: absolute;
-  left: 96px;
-  top: 34px;
-  width: 345px;
+  left: var(--rx, 60px);
+  top: var(--ry, 30px);
+  height: var(--rh, 900px);
   aspect-ratio: 616 / 1719;
-  transform-origin: 172px 375px;
-  transform: translate(162px, 410px) rotate(-60deg) scale(0.62);
+  transform-origin: 50% 39%;
+  transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(-60deg) scale(var(--k, 0.5));
   opacity: 0;
   pointer-events: none;
   transition: transform 0.75s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.45s ease;
@@ -300,18 +331,18 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: calc(9px * var(--u, 1));
   font-family: 'Courier New', ui-monospace, monospace;
   font-weight: 700;
-  font-size: 27px;
-  letter-spacing: 2px;
+  font-size: calc(27px * var(--u, 1));
+  letter-spacing: calc(2px * var(--u, 1));
   color: rgba(22, 26, 30, 0.82);
   text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.08);
   pointer-events: none;
 }
 #lcd i {
-  width: 9px;
-  height: 9px;
+  width: calc(9px * var(--u, 1));
+  height: calc(9px * var(--u, 1));
   border-radius: 50%;
   background: rgba(22, 26, 30, 0.2);
 }
@@ -331,8 +362,8 @@ button {
   position: absolute;
   left: 50%;
   top: var(--p, 50%);
-  width: 30px;
-  height: 17px;
+  width: calc(30px * var(--u, 1));
+  height: calc(17px * var(--u, 1));
   transform: translate(-50%, -50%);
   border-radius: 9px;
   background: linear-gradient(180deg, #ffffff 0%, #ecebf3 45%, #c9c8d6 100%);

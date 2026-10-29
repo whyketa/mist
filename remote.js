@@ -23,13 +23,47 @@
   // fit the 1536×1024 render to the window
   // ----------------------------------------
 
+  // ----------------------------------------
+  // layout: the render never grows past its own pixels, so it stays
+  // sharp; the room carries on around it at any window shape. The
+  // remote in the hand is sized by the window height, never cut off.
+  // ----------------------------------------
+
+  const stage = document.getElementById('stage')
+  const pickupEl = document.getElementById('pickup')
+
   function fit() {
-    const sx = innerWidth / 1536
-    const sy = innerHeight / 1024
-    // fill the window, but never crop more than a little
-    const scale = Math.min(Math.max(sx, sy), Math.min(sx, sy) * 1.12)
-    room.style.transform = `scale(${scale})`
+    const vw = innerWidth
+    const vh = innerHeight
+
+    // how big the render is drawn: a little further away than full-bleed
+    const s = Math.min(vw / 1750, vh / 1120, 1)
+
+    // the device sits a touch right of centre, leaving room for the hand
+    const tx = vw * 0.56 - 900 * s
+    const ty = vh * 0.5 - 540 * s
+    stage.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`
+
+    // the remote in the hand
+    const rh = Math.round(vh * 0.9)
+    const rw = (rh * 616) / 1719
+    const rx = Math.max(16, Math.min(vw * 0.07, tx + 560 * s - rw - 24))
+    const ry = Math.round(vh * 0.05)
+    room.style.setProperty('--rh', `${rh}px`)
+    room.style.setProperty('--rx', `${rx}px`)
+    room.style.setProperty('--ry', `${ry}px`)
+    room.style.setProperty('--u', (rh / 963).toFixed(4))
+
+    // where it lies on the table, on screen, for the pick-up move
+    const tableX = tx + 410 * s
+    const tableY = ty + 800 * s
+    const cx = rx + rw * 0.5
+    const cy = ry + rh * 0.39
+    room.style.setProperty('--dx', `${tableX - cx}px`)
+    room.style.setProperty('--dy', `${tableY - cy}px`)
+    room.style.setProperty('--k', ((430 * s) / (rh * 0.78)).toFixed(4))
   }
+
   fit()
   addEventListener('resize', fit)
 
