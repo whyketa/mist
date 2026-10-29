@@ -105,6 +105,15 @@ button {
   opacity: calc(var(--lit) * 0.9);
 }
 
+#print {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1536px;
+  height: 1024px;
+  pointer-events: none;
+}
+
 #night {
   background: rgba(4, 6, 16, 0.62);
   opacity: var(--night);

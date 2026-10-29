@@ -144,6 +144,22 @@
   const FALL = 2
   const TABLE = 3
 
+  // curl of a slowly moving stream function: a divergence-free swirl
+  function psi(x, y, t) {
+    return (
+      Math.sin(x * 0.011 + t * 0.35) * Math.cos(y * 0.013 - t * 0.27) * 1.0 +
+      Math.sin(x * 0.023 - y * 0.019 + t * 0.6) * 0.5 +
+      Math.cos(x * 0.041 + y * 0.037 - t * 0.9) * 0.22
+    )
+  }
+  function swirlAt(x, y, t) {
+    const e = 2
+    return [
+      (psi(x, y + e, t) - psi(x, y - e, t)) / (2 * e),
+      -(psi(x + e, y, t) - psi(x - e, y, t)) / (2 * e)
+    ]
+  }
+
   function spawn(kick) {
     const a = Math.random() * Math.PI * 2
     const rr = Math.sqrt(Math.random()) * 14
@@ -152,7 +168,7 @@
       y: HOLE_Y + Math.sin(a) * rr * 0.3,
       vx: (Math.random() - 0.5) * 40,
       vy: -(70 + Math.random() * 60) - (kick || 0),
-      r: 14 + Math.random() * 10,
+      r: 9 + Math.random() * 9,
       grow: 6 + Math.random() * 7,
       age: 0,
       life: 10 + Math.random() * 6,
@@ -171,7 +187,7 @@
     last = now
     clock += dt
 
-    debt += S.level * 72 * dt
+    debt += S.level * 105 * dt
     while (debt >= 1) {
       debt -= 1
       spawn(0)
@@ -234,8 +250,13 @@
         p.grow = Math.max(p.grow, 9)
       }
 
-      p.x += p.vx * dt
-      p.y += p.vy * dt
+      // ride the swirl; stronger as the cloud climbs and spreads
+      const [sx, sy] = swirlAt(p.x, p.y, clock)
+      const amt = p.phase === RISE ? 900 + Math.max(0, HOLE_Y - p.y) * 9 : p.phase === FALL ? 380 : 650
+      const lie = p.phase === TABLE || p.phase === LID ? 0.35 : 1
+
+      p.x += (p.vx + sx * amt) * dt
+      p.y += (p.vy + sy * amt * lie) * dt
       p.r += p.grow * dt
       p.rot += p.spin * dt
 
@@ -269,7 +290,7 @@
 
     // how dense each stage reads: thick near the mouth, a thin veil down
     // the front of the body, a low blanket on the table
-    const DENSITY = [0.34, 0.26, 0.1, 0.24]
+    const DENSITY = [0.28, 0.22, 0.09, 0.2]
 
     ctx.globalCompositeOperation = 'source-over'
     for (const p of puffs) {
@@ -318,8 +339,8 @@
       const n = Math.round(3 + strength * 6)
       for (let i = 0; i < n; i++) spawn(30 * strength)
     },
-    glint(strength) {
-      if (S.level <= 0 || !puffs.length) return
+    glint() {
+      return
       const n = 1 + Math.round(strength * 3)
       for (let i = 0; i < n; i++) {
         const p = puffs[Math.floor(Math.random() * puffs.length)]
