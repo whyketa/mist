@@ -1,145 +1,66 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>MIST</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>mist</title>
     <link rel="stylesheet" href="style.css" />
 
     <script src="https://unpkg.com/tone@15.1.22/build/Tone.js"></script>
     <script src="script.js" defer></script>
-    <script src="visual.js" defer></script>
+    <script src="steam.js" defer></script>
+    <script src="remote.js" defer></script>
+  </head>
 
-    <canvas id="pond" class="layer"></canvas>
-    <canvas id="air" class="layer"></canvas>
+  <body>
+    <div id="room">
+      <img class="plate" id="plate-full" src="img/room.jpg" alt="" />
+      <img class="plate" id="plate-empty" src="img/room-empty.jpg" alt="" />
 
-    <div id="stage">
-      <!-- ============ WATER ============ -->
-      <section id="water" class="panel panel--side" data-voice="water">
-        <h2>water</h2>
+      <div id="lidtint"></div>
 
-        <div class="pills">
-          <button id="waterStart" class="pill pill--start" type="button">start water</button>
-          <button id="waterStop" class="pill" type="button">stop water</button>
+      <div id="light">
+        <img src="img/light.jpg" alt="" />
+        <div class="tint"></div>
+      </div>
+
+      <div id="night"></div>
+
+      <i class="led" style="left: 853px; --c: 90, 155, 255"></i>
+      <i class="led" style="left: 899px; --c: 80, 230, 130"></i>
+      <i class="led" style="left: 946px; --c: 255, 140, 60"></i>
+      <i class="led" style="left: 994px; --c: 70, 240, 110"></i>
+
+      <canvas id="steam"></canvas>
+
+      <button id="pickup" aria-label="remote"></button>
+      <div id="backdrop"></div>
+
+      <div id="remote">
+        <img class="rc rc--closed" src="img/remote-closed.png" alt="" />
+        <img class="rc rc--open" src="img/remote-open.png" alt="" />
+
+        <button class="key" data-voice="water" data-act="up" style="--x: 33.4%; --y: 12.9%"></button>
+        <button class="key" data-voice="water" data-act="down" style="--x: 39.1%; --y: 20.4%"></button>
+        <button class="key" data-voice="bell" data-act="up" style="--x: 67.2%; --y: 12.9%"></button>
+        <button class="key" data-voice="bell" data-act="down" style="--x: 61.4%; --y: 20.4%"></button>
+        <button class="key" data-voice="mist" data-act="down" style="--x: 50%; --y: 27.5%"></button>
+        <button class="key" data-voice="mist" data-act="up" style="--x: 50%; --y: 35.6%"></button>
+
+        <button class="key key--big" data-fn="sun" style="--x: 24.8%; --y: 46.5%"></button>
+        <button class="key key--big" data-fn="tempo" style="--x: 50%; --y: 46.5%"></button>
+        <button class="key key--big" data-fn="moon" style="--x: 75.3%; --y: 46.5%"></button>
+
+        <button id="cover" aria-label="cover"></button>
+
+        <div id="panel">
+          <div id="lcd"><i></i><span>--</span></div>
+          <div class="slider" data-param="filter" style="--x: 26.3%"><b></b></div>
+          <div class="slider" data-param="reverb" style="--x: 41.7%"><b></b></div>
+          <div class="slider" data-param="pan" style="--x: 57.1%"><b></b></div>
+          <div class="slider" data-param="echo" style="--x: 72.6%"><b></b></div>
         </div>
-
-        <div class="sliders">
-          <div class="row">
-            <label for="waterVolume">volume</label>
-            <output data-for="waterVolume" data-fmt="db"></output>
-            <input id="waterVolume" type="range" min="-30" max="0" value="-8" step="1" />
-          </div>
-          <div class="row">
-            <label for="waterFilter">filter</label>
-            <output data-for="waterFilter" data-fmt="hz"></output>
-            <input id="waterFilter" type="range" min="200" max="3000" value="900" step="10" />
-          </div>
-          <div class="row">
-            <label for="waterReverb">reverb</label>
-            <output data-for="waterReverb" data-fmt="pct"></output>
-            <input id="waterReverb" type="range" min="0" max="1" value="0.5" step="0.01" />
-          </div>
-          <div class="row">
-            <label for="waterPan">pan</label>
-            <output data-for="waterPan" data-fmt="pan"></output>
-            <input id="waterPan" type="range" min="-1" max="1" value="-0.6" step="0.01" data-center />
-          </div>
-          <div class="row">
-            <label for="waterDelay">delay</label>
-            <output data-for="waterDelay" data-fmt="pct"></output>
-            <input id="waterDelay" type="range" min="0" max="1" value="0.2" step="0.01" />
-          </div>
-        </div>
-
-        <div class="presets" role="group" aria-label="Water pattern">
-          <button id="waterCalm" class="chip is-active" type="button">calm</button>
-          <button id="waterFlow" class="chip" type="button">flow</button>
-          <button id="waterRain" class="chip" type="button">rain</button>
-          <button id="waterRandom" class="chip" type="button">random</button>
-        </div>
-      </section>
-
-      <!-- ============ MIST ============ -->
-      <section id="mist" class="panel panel--mist" data-voice="mist">
-        <h2>mist</h2>
-
-        <div class="pills">
-          <button id="mistStart" class="pill pill--start" type="button">start mist</button>
-          <button id="mistStop" class="pill" type="button">stop mist</button>
-        </div>
-
-        <div class="sliders">
-          <div class="row row--big">
-            <label for="mistVolume">volume</label>
-            <output data-for="mistVolume" data-fmt="db"></output>
-            <input id="mistVolume" type="range" min="-40" max="-5" value="-24" step="1" />
-          </div>
-          <div class="row row--big">
-            <label for="mistFilter">filter</label>
-            <output data-for="mistFilter" data-fmt="hz"></output>
-            <input id="mistFilter" type="range" min="200" max="3000" value="700" step="10" />
-          </div>
-        </div>
-      </section>
-
-      <!-- ============ TEMPO ============ -->
-      <section id="tempo" class="panel panel--tempo" data-voice="tempo">
-        <div class="row row--big">
-          <label for="tempoControl">tempo</label>
-          <output><span id="tempoValue">52</span> bpm</output>
-          <input id="tempoControl" type="range" min="40" max="100" value="52" step="1" />
-        </div>
-      </section>
-
-      <!-- ============ BELL ============ -->
-      <section id="bell" class="panel panel--side" data-voice="bell">
-        <h2>bell</h2>
-
-        <div class="pills">
-          <button id="bellStart" class="pill pill--start" type="button">start bell</button>
-          <button id="bellStop" class="pill" type="button">stop bell</button>
-        </div>
-
-        <div class="sliders">
-          <div class="row">
-            <label for="bellVolume">volume</label>
-            <output data-for="bellVolume" data-fmt="db"></output>
-            <input id="bellVolume" type="range" min="-30" max="0" value="-8" step="1" />
-          </div>
-          <div class="row">
-            <label for="bellFilter">filter</label>
-            <output data-for="bellFilter" data-fmt="hz"></output>
-            <input id="bellFilter" type="range" min="200" max="5000" value="1500" step="10" />
-          </div>
-          <div class="row">
-            <label for="bellReverb">reverb</label>
-            <output data-for="bellReverb" data-fmt="pct"></output>
-            <input id="bellReverb" type="range" min="0" max="1" value="0.7" step="0.01" />
-          </div>
-          <div class="row">
-            <label for="bellPan">pan</label>
-            <output data-for="bellPan" data-fmt="pan"></output>
-            <input id="bellPan" type="range" min="-1" max="1" value="0.6" step="0.01" data-center />
-          </div>
-          <div class="row">
-            <label for="bellChorus">chorus</label>
-            <output data-for="bellChorus" data-fmt="pct"></output>
-            <input id="bellChorus" type="range" min="0" max="1" value="0.3" step="0.01" />
-          </div>
-        </div>
-
-        <div class="presets" role="group" aria-label="Bell pattern">
-          <button id="bellTemple" class="chip" type="button">temple</button>
-          <button id="bellZen" class="chip is-active" type="button">zen</button>
-          <button id="bellNight" class="chip" type="button">night</button>
-          <button id="bellRandom" class="chip" type="button">random</button>
-        </div>
-      </section>
+      </div>
     </div>
-
-    <canvas id="fog" class="layer"></canvas>
-  
-</body></html>
+  </body>
+</html>
