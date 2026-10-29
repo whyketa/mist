@@ -20,42 +20,52 @@
   const sliders = [...document.querySelectorAll('.slider')]
 
   // ----------------------------------------
-  // fit the 1536×1024 render to the window
-  // ----------------------------------------
-
-  // ----------------------------------------
-  // layout: the render never grows past its own pixels, so it stays
-  // sharp; the room carries on around it at any window shape. The
-  // remote in the hand is sized by the window height, never cut off.
+  // layout: the wall and the table are drawn in code and fill any
+  // window; the device and the remote are placed on them at a size
+  // that never goes past the render's own pixels, so they stay sharp.
   // ----------------------------------------
 
   const stage = document.getElementById('stage')
-  const pickupEl = document.getElementById('pickup')
+  const stageTop = document.getElementById('stage-top')
 
   function fit() {
     const vw = innerWidth
     const vh = innerHeight
 
-    // how big the render is drawn: a little further away than full-bleed
-    const s = Math.min(vw / 1750, vh / 1120, 1)
+    const s = Math.min(vw / 1700, vh / 1050, 1)
 
-    // the device sits a touch right of centre, leaving room for the hand
-    const tx = vw * 0.56 - 900 * s
-    const ty = vh * 0.5 - 540 * s
-    stage.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`
+    // the device and the remote on the table, centred together
+    const tx = vw * 0.5 - 760 * s
+    const ty = vh * 0.5 - 600 * s
+    const t = `translate(${tx}px, ${ty}px) scale(${s})`
+    stage.style.transform = t
+    stageTop.style.transform = t
 
-    // the remote in the hand
-    const rh = Math.round(vh * 0.9)
+    // the cord runs from the back of the device off the right edge
+    const xEnd = Math.round((vw - tx) / s + 60)
+    const d = `M1262 616 C1310 618 1350 626 1420 627 L${xEnd} 628`
+    document.querySelectorAll('.cord').forEach((p) => p.setAttribute('d', d))
+
+    // where the table meets the wall, and its front edge
+    room.style.setProperty('--hz', `${ty + 600 * s}px`)
+    room.style.setProperty('--edge', `${Math.min(vh - 30, ty + 955 * s)}px`)
+    room.style.setProperty('--gx', `${tx + 933 * s}px`)
+    room.style.setProperty('--gy', `${ty + 377 * s}px`)
+    room.style.setProperty('--ty', `${ty + 730 * s}px`)
+    room.style.setProperty('--s', s.toFixed(4))
+
+    // the remote in the hand: follows both width and height, with air above and below
+    const rh = Math.round(Math.min(vh * 0.76, ((vw * 0.24) * 1719) / 616))
     const rw = (rh * 616) / 1719
-    const rx = Math.max(16, Math.min(vw * 0.07, tx + 560 * s - rw - 24))
-    const ry = Math.round(vh * 0.05)
+    const rx = Math.round(Math.max(16, vw * 0.08))
+    const ry = Math.round((vh - rh) / 2)
     room.style.setProperty('--rh', `${rh}px`)
     room.style.setProperty('--rx', `${rx}px`)
     room.style.setProperty('--ry', `${ry}px`)
     room.style.setProperty('--u', (rh / 963).toFixed(4))
 
     // where it lies on the table, on screen, for the pick-up move
-    const tableX = tx + 410 * s
+    const tableX = tx + 406 * s
     const tableY = ty + 800 * s
     const cx = rx + rw * 0.5
     const cy = ry + rh * 0.39

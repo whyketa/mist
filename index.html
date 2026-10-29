@@ -14,19 +14,28 @@
 
   <body>
     <div id="room">
+      <div id="scene"></div>
+      <div id="glow"></div>
+
       <div id="stage">
-      <!-- the room carries on past the edges of the render, softly -->
-      <img id="ext" src="img/room-ext.jpg" alt="" />
-      <img class="plate" id="plate-full" src="img/room.jpg" alt="" />
-      <img class="plate" id="plate-empty" src="img/room-empty.jpg" alt="" />
-
-      <div id="lidtint"></div>
-
-      <div id="light">
-        <img src="img/light.jpg" alt="" />
-        <div class="tint"></div>
-      </div>
-
+        <div class="shadow shadow--remote"></div>
+        <img id="remote-table" src="img/remote-table.png" alt="" />
+        <!-- the power cord, drawn so it can run to the edge of any window -->
+        <svg id="cord" width="1536" height="1024" aria-hidden="true">
+          <defs>
+            <filter id="cord-blur" x="-5%" y="-200%" width="110%" height="500%"><feGaussianBlur stdDeviation="5" /></filter>
+            <filter id="cord-soft" x="-5%" y="-200%" width="110%" height="500%"><feGaussianBlur stdDeviation="1.4" /></filter>
+          </defs>
+          <path class="cord cord--shadow" d="" transform="translate(0 9)" filter="url(#cord-blur)" />
+          <path class="cord cord--body" d="" />
+          <path class="cord cord--shade" d="" transform="translate(0 4)" filter="url(#cord-soft)" />
+          <path class="cord cord--light" d="" transform="translate(0 -3)" filter="url(#cord-soft)" />
+        </svg>
+        <div class="shadow shadow--device"></div>
+        <img id="reflection" src="img/device.png" alt="" />
+        <img id="device" src="img/device.png" alt="" />
+        <div id="devlid"></div>
+        <div id="devlight"></div>
       <!-- the printed panel on the device, redrawn as vector so it stays sharp -->
       <svg id="print" viewBox="0 0 1536 1024" aria-hidden="true">
         <g fill="rgb(112, 111, 128)">
@@ -56,16 +65,18 @@
         </g>
       </svg>
 
+        <button id="pickup" aria-label="remote"></button>
+      </div>
+
       <div id="night"></div>
 
+      <div id="stage-top">
       <i class="led" style="left: 853px; --c: 90, 155, 255"></i>
       <i class="led" style="left: 899px; --c: 80, 230, 130"></i>
       <i class="led" style="left: 946px; --c: 255, 140, 60"></i>
       <i class="led" style="left: 994px; --c: 70, 240, 110"></i>
 
-      <canvas id="steam"></canvas>
-
-      <button id="pickup" aria-label="remote"></button>
+        <canvas id="steam"></canvas>
       </div>
 
       <div id="backdrop"></div>
