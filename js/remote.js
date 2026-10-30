@@ -41,9 +41,10 @@
     stage.style.transform = t
     stageTop.style.transform = t
 
-    // the cord runs from the back of the device off the right edge
+    // the cord leaves the device low at the back and lies on the table
+    // all the way to the right edge of the window
     const xEnd = Math.round((vw - tx) / s + 60)
-    const d = `M1262 616 C1310 618 1350 626 1420 627 L${xEnd} 628`
+    const d = `M1200 684 C1262 687 1305 684 1352 677 S1470 662 1560 660 L${xEnd} 659`
     document.querySelectorAll('.cord').forEach((p) => p.setAttribute('d', d))
 
     // where the table meets the wall, and its front edge
