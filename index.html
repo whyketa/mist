@@ -4,12 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>mist</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/style.css" />
 
     <script src="https://unpkg.com/tone@15.1.22/build/Tone.js"></script>
-    <script src="script.js" defer></script>
-    <script src="steam.js" defer></script>
-    <script src="remote.js" defer></script>
+    <script src="js/sound.js" defer></script>
+    <script src="js/steam.js" defer></script>
+    <script src="js/remote.js" defer></script>
   </head>
 
   <body>
@@ -36,34 +36,34 @@
         <img id="device" src="img/device.png" alt="" />
         <div id="devlid"></div>
         <div id="devlight"></div>
-      <!-- the printed panel on the device, redrawn as vector so it stays sharp -->
-      <svg id="print" viewBox="0 0 1536 1024" aria-hidden="true">
-        <g fill="rgb(112, 111, 128)">
-          <circle cx="853.3" cy="626" r="5" />
-          <circle cx="899" cy="626" r="5" />
-          <circle cx="945.9" cy="626" r="5" />
-          <circle cx="994" cy="626" r="5" />
-        </g>
-        <g fill="none" stroke="rgba(255, 255, 255, 0.22)" stroke-width="0.7">
-          <path d="M849.6 629.4a5 5 0 0 0 7.4 0M895.3 629.4a5 5 0 0 0 7.4 0M942.2 629.4a5 5 0 0 0 7.4 0M990.3 629.4a5 5 0 0 0 7.4 0" />
-        </g>
-        <g fill="none" stroke="rgb(98, 97, 114)" stroke-width="0.9" stroke-linecap="round">
-          <path d="M853.3 633v8M994 633v8M899 633v7.5h46.9V633M922.5 640.5v4.5" />
-        </g>
-        <g fill="rgb(82, 81, 98)" font-family="Arial, Helvetica, sans-serif">
-          <g font-size="14.5">
-            <text x="846" y="615.6" textLength="16" lengthAdjust="spacingAndGlyphs">60</text>
-            <text x="889" y="615.6" textLength="22" lengthAdjust="spacingAndGlyphs">120</text>
-            <text x="936" y="615.6" textLength="22" lengthAdjust="spacingAndGlyphs">INT</text>
-            <text x="984" y="615.6" textLength="20" lengthAdjust="spacingAndGlyphs">ON</text>
+        <!-- the printed panel on the device, redrawn as vector so it stays sharp -->
+        <svg id="print" viewBox="0 0 1536 1024" aria-hidden="true">
+          <g fill="rgb(112, 111, 128)">
+            <circle cx="853.3" cy="626" r="5" />
+            <circle cx="899" cy="626" r="5" />
+            <circle cx="945.9" cy="626" r="5" />
+            <circle cx="994" cy="626" r="5" />
           </g>
-          <g font-size="15.5">
-            <text x="832" y="657.4" textLength="38" lengthAdjust="spacingAndGlyphs">LIGHT</text>
-            <text x="909" y="657.4" textLength="28" lengthAdjust="spacingAndGlyphs">MIST</text>
-            <text x="975" y="657.4" textLength="40" lengthAdjust="spacingAndGlyphs">TIMER</text>
+          <g fill="none" stroke="rgba(255, 255, 255, 0.22)" stroke-width="0.7">
+            <path d="M849.6 629.4a5 5 0 0 0 7.4 0M895.3 629.4a5 5 0 0 0 7.4 0M942.2 629.4a5 5 0 0 0 7.4 0M990.3 629.4a5 5 0 0 0 7.4 0" />
           </g>
-        </g>
-      </svg>
+          <g fill="none" stroke="rgb(98, 97, 114)" stroke-width="0.9" stroke-linecap="round">
+            <path d="M853.3 633v8M994 633v8M899 633v7.5h46.9V633M922.5 640.5v4.5" />
+          </g>
+          <g fill="rgb(82, 81, 98)" font-family="Arial, Helvetica, sans-serif">
+            <g font-size="14.5">
+              <text x="846" y="615.6" textLength="16" lengthAdjust="spacingAndGlyphs">60</text>
+              <text x="889" y="615.6" textLength="22" lengthAdjust="spacingAndGlyphs">120</text>
+              <text x="936" y="615.6" textLength="22" lengthAdjust="spacingAndGlyphs">INT</text>
+              <text x="984" y="615.6" textLength="20" lengthAdjust="spacingAndGlyphs">ON</text>
+            </g>
+            <g font-size="15.5">
+              <text x="832" y="657.4" textLength="38" lengthAdjust="spacingAndGlyphs">LIGHT</text>
+              <text x="909" y="657.4" textLength="28" lengthAdjust="spacingAndGlyphs">MIST</text>
+              <text x="975" y="657.4" textLength="40" lengthAdjust="spacingAndGlyphs">TIMER</text>
+            </g>
+          </g>
+        </svg>
 
         <button id="pickup" aria-label="remote"></button>
       </div>
@@ -71,10 +71,10 @@
       <div id="night"></div>
 
       <div id="stage-top">
-      <i class="led" style="left: 853px; --c: 90, 155, 255"></i>
-      <i class="led" style="left: 899px; --c: 80, 230, 130"></i>
-      <i class="led" style="left: 946px; --c: 255, 140, 60"></i>
-      <i class="led" style="left: 994px; --c: 70, 240, 110"></i>
+        <i class="led" style="left: 853px; --c: 90, 155, 255"></i>
+        <i class="led" style="left: 899px; --c: 80, 230, 130"></i>
+        <i class="led" style="left: 946px; --c: 255, 140, 60"></i>
+        <i class="led" style="left: 994px; --c: 70, 240, 110"></i>
 
         <canvas id="steam"></canvas>
       </div>

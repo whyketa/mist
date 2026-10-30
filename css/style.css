@@ -1,0 +1,447 @@
+/* =========================================================
+   MIST — a humidifier on a table.
+   The room is drawn in code; the device and the remote sit on
+   a stage in the render's own coordinates, 1536 × 1024.
+   ========================================================= */
+
+:root {
+  --lr: 255;
+  --lg: 255;
+  --lb: 255;
+  --lit: 0;
+  --night: 0;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #4d5059;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------------------------------------------------------
+   The room is drawn in code, so it fills any window crisply.
+   JS sets --hz (where the table meets the wall) and --edge
+   (the table's front edge) in screen pixels.
+   --------------------------------------------------------- */
+
+#room {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #45475a;
+}
+
+#scene {
+  position: absolute;
+  inset: 0;
+  background:
+    /* the room darkens toward the sides */
+    radial-gradient(ellipse 75% 95% at var(--gx, 60%) 45%, rgba(0, 0, 0, 0) 40%, rgba(10, 10, 18, 0.38) 100%),
+    /* a soft daylight from the left across the table top */
+    radial-gradient(ellipse 60% 40% at 18% var(--edge, 80%), rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0) 70%),
+    linear-gradient(
+      to bottom,
+      rgb(90, 95, 115) 0,
+      rgb(84, 88, 107) calc(var(--hz, 60%) * 0.55),
+      rgb(70, 72, 86) calc(var(--hz, 60%) - 1px),
+      rgb(112, 118, 145) var(--hz, 60%),
+      rgb(132, 138, 166) calc(var(--hz, 60%) + (var(--edge, 85%) - var(--hz, 60%)) * 0.5),
+      rgb(142, 148, 177) calc(var(--edge, 85%) - 3px),
+      rgb(196, 200, 222) calc(var(--edge, 85%) - 1px),
+      rgb(96, 96, 108) calc(var(--edge, 85%) + 1px),
+      rgb(58, 58, 66) calc(var(--edge, 85%) + 40px),
+      rgb(34, 34, 40) 100%
+    );
+}
+
+/* the lamp's light on the wall and the table, coloured */
+#glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse calc(var(--s, 1) * 620px) calc(var(--s, 1) * 420px) at var(--gx) var(--gy),
+      rgba(var(--lr), var(--lg), var(--lb), 0.42),
+      rgba(var(--lr), var(--lg), var(--lb), 0.12) 55%,
+      rgba(var(--lr), var(--lg), var(--lb), 0) 100%
+    ),
+    radial-gradient(
+      ellipse calc(var(--s, 1) * 720px) calc(var(--s, 1) * 150px) at var(--gx) var(--ty),
+      rgba(var(--lr), var(--lg), var(--lb), 0.3),
+      rgba(var(--lr), var(--lg), var(--lb), 0) 100%
+    );
+  mix-blend-mode: screen;
+  opacity: var(--lit);
+}
+
+/* the objects live in the render's own coordinates (1536 × 1024) */
+#stage,
+#stage-top {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1536px;
+  height: 1024px;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+#stage > *,
+#stage-top > * {
+  position: absolute;
+}
+
+.shadow {
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(10, 10, 20, 0.55), rgba(10, 10, 20, 0.2) 55%, rgba(10, 10, 20, 0) 100%);
+}
+.shadow--device {
+  left: 540px;
+  top: 700px;
+  width: 780px;
+  height: 64px;
+}
+.shadow--remote {
+  left: 205px;
+  top: 760px;
+  width: 420px;
+  height: 180px;
+  transform: rotate(24deg);
+  opacity: 0.6;
+  transition: opacity 0.5s;
+}
+
+#cord {
+  left: 0;
+  top: 0;
+  overflow: visible;
+}
+.cord {
+  fill: none;
+  stroke-linecap: round;
+}
+.cord--shadow {
+  stroke: rgba(15, 15, 30, 0.45);
+  stroke-width: 18px;
+}
+.cord--body {
+  stroke: rgb(118, 121, 148);
+  stroke-width: 17px;
+}
+.cord--shade {
+  stroke: rgb(98, 100, 126);
+  stroke-width: 8px;
+}
+.cord--light {
+  stroke: rgb(158, 161, 188);
+  stroke-width: 5px;
+}
+
+/* a faint reflection in the glossy table */
+#reflection {
+  left: 552px;
+  top: 720px;
+  width: 748px;
+  height: 392px;
+  transform: scaleY(-1);
+  transform-origin: 50% 50%;
+  opacity: 0.22;
+  -webkit-mask-image: linear-gradient(to top, #000 0, rgba(0, 0, 0, 0) 38%);
+  mask-image: linear-gradient(to top, #000 0, rgba(0, 0, 0, 0) 38%);
+  filter: blur(1.5px);
+}
+
+#device,
+#devlid,
+#devlight {
+  left: 552px;
+  top: 344px;
+  width: 748px;
+  height: 392px;
+}
+
+/* the lid takes the lamp colour */
+#devlid {
+  background: rgb(var(--lr), var(--lg), var(--lb));
+  -webkit-mask: url(../img/device-lid.png) 0 0 / 100% 100%;
+  mask: url(../img/device-lid.png) 0 0 / 100% 100%;
+  mix-blend-mode: multiply;
+  opacity: calc(var(--lit) * 0.9);
+}
+
+/* and its light falls on the body */
+#devlight {
+  background: rgb(var(--lr), var(--lg), var(--lb));
+  -webkit-mask: url(../img/device-light.png) 0 0 / 100% 100%;
+  mask: url(../img/device-light.png) 0 0 / 100% 100%;
+  mix-blend-mode: screen;
+  opacity: var(--lit);
+}
+
+#remote-table {
+  left: 207px;
+  top: 672px;
+  width: 399px;
+  height: 255px;
+  transition: opacity 0.4s;
+}
+#room.is-up #remote-table,
+#room.is-up .shadow--remote {
+  opacity: 0;
+}
+
+#print {
+  left: 0;
+  top: 0;
+  width: 1536px;
+  height: 1024px;
+}
+
+#night {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(4, 6, 16, 0.62);
+  opacity: var(--night);
+  transition: opacity 1.8s ease;
+}
+
+#steam {
+  left: 0;
+  top: 0;
+  width: 1536px;
+  height: 1024px;
+}
+
+/* the four lights on the device: water, bell, mist, ON */
+.led {
+  top: 621px;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: rgb(var(--c));
+  box-shadow: 0 0 7px 2px rgba(var(--c), 0.8), 0 0 20px 4px rgba(var(--c), 0.3);
+  transition: opacity 0.5s;
+}
+.led.is-lit {
+  opacity: 0.7;
+}
+/* each note flicks its voice's light */
+.led.is-lit.is-blink {
+  animation: blink 0.55s ease-out;
+}
+@keyframes blink {
+  0% {
+    opacity: 1;
+    transform: scale(calc(var(--blink, 1) * 1.15));
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+}
+
+
+#pickup {
+  pointer-events: auto;
+  left: 190px;
+  top: 720px;
+  width: 480px;
+  height: 190px;
+  border-radius: 95px;
+  transform: rotate(25deg);
+  cursor: pointer;
+}
+#room.is-up #pickup {
+  pointer-events: none;
+}
+
+#backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 90% at 18% 50%, rgba(8, 10, 18, 0.38), rgba(8, 10, 18, 0.08) 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.55s ease;
+}
+#room.is-up #backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------------------------------------------------------
+   The remote in the hand
+   --------------------------------------------------------- */
+
+#remote {
+  position: absolute;
+  left: var(--rx, 60px);
+  top: var(--ry, 30px);
+  height: var(--rh, 900px);
+  aspect-ratio: 616 / 1719;
+  transform-origin: 50% 39%;
+  transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(-60deg) scale(var(--k, 0.5));
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.75s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.45s ease;
+}
+#room.is-up #remote {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  filter: drop-shadow(0 26px 30px rgba(0, 0, 0, 0.45));
+  transition: opacity 0.3s ease;
+}
+.rc--open {
+  opacity: 0;
+}
+#remote.is-open .rc--open {
+  opacity: 1;
+}
+#remote.is-open .rc--closed {
+  opacity: 0;
+}
+
+/* invisible hit areas on the rendered buttons */
+.key {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 18%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.key--big {
+  width: 21.5%;
+}
+.key:hover {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 70%);
+}
+.key:active,
+.key.is-hit {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 72%);
+}
+
+/* the cover: tap the lower part to slide it, tap the grip to close */
+#cover {
+  position: absolute;
+  left: 14%;
+  top: 59%;
+  width: 72%;
+  height: 19%;
+  border-radius: 40px;
+  cursor: pointer;
+}
+#remote.is-open #cover {
+  left: 32%;
+  top: 90.5%;
+  width: 36%;
+  height: 8%;
+}
+
+#panel {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+#remote.is-open #panel {
+  opacity: 1;
+}
+#remote.is-open #panel .slider {
+  pointer-events: auto;
+}
+.slider {
+  pointer-events: none;
+}
+
+/* the little screen, written by code */
+#lcd {
+  position: absolute;
+  left: 27.3%;
+  top: 61.55%;
+  width: 44.1%;
+  height: 4.85%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(9px * var(--u, 1));
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-weight: 700;
+  font-size: calc(27px * var(--u, 1));
+  letter-spacing: calc(2px * var(--u, 1));
+  color: rgba(22, 26, 30, 0.82);
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+#lcd i {
+  width: calc(9px * var(--u, 1));
+  height: calc(9px * var(--u, 1));
+  border-radius: 50%;
+  background: rgba(22, 26, 30, 0.2);
+}
+
+/* sliders: a wide hit strip over each groove, and a glossy knob */
+.slider {
+  position: absolute;
+  left: var(--x);
+  top: 69.6%;
+  width: 11%;
+  height: 8.9%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+  touch-action: none;
+}
+.slider b {
+  position: absolute;
+  left: 50%;
+  top: var(--p, 50%);
+  width: calc(30px * var(--u, 1));
+  height: calc(17px * var(--u, 1));
+  transform: translate(-50%, -50%);
+  border-radius: 9px;
+  background: linear-gradient(180deg, #ffffff 0%, #ecebf3 45%, #c9c8d6 100%);
+  box-shadow: 0 2px 4px rgba(30, 30, 50, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transition: top 0.25s ease, opacity 0.3s;
+}
+.slider.is-dragging b {
+  transition: none;
+}
+
